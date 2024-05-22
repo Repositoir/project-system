@@ -2,22 +2,49 @@
 
 namespace project_system
 {
-    UltrasonicSensor::UltrasonicSensor(int sensorPin, bool objectDetected)
-        : objectDetected_{false}
+    UltrasonicSensor::UltrasonicSensor(int echoPin, int trigPin)
+        : echoPin_(echoPin), trigPin_(trigPin), objectDetected_(false)
     {
-        set_sensor_pin(sensorPin);
+        pinMode(trigPin_, OUTPUT);
+        pinMode(echoPin_, INPUT);
     }
+
     UltrasonicSensor::~UltrasonicSensor()
     {
     }
 
-    int UltrasonicSensor::read_sensor_digital(int sensorPin)
+    long UltrasonicSensor::read_sensor()
     {
-        return 0;
+        // Clear the trigger pin
+        digitalWrite(trigPin_, LOW);
+        delayMicroseconds(2);
+
+        // Send a 10 microsecond pulse to trigger pin
+        digitalWrite(trigPin_, HIGH);
+        delayMicroseconds(10);
+        digitalWrite(trigPin_, LOW);
+
+        // Read the echo pin
+        long duration = pulseIn(echoPin_, HIGH);
+
+        // Calculate the distance in centimeters
+        long distance = microsecondsToCentimeters(duration);
+
+        // Update the object detected status
+        objectDetected_ = (distance < 200); // Example threshold for object detection
+
+        return distance;
     }
 
     bool UltrasonicSensor::detected_object()
     {
-        return false;
+        return objectDetected_;
+    }
+
+    long UltrasonicSensor::microsecondsToCentimeters(long microseconds)
+    {
+        // Sound travels at 343 meters per second, or 29.1 microseconds per centimeter.
+        // The round trip time is twice the distance.
+        return microseconds / 29 / 2;
     }
 }

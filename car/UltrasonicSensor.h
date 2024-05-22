@@ -1,20 +1,23 @@
 #ifndef INCLUDED_ULTRASONIC_SENSOR_H
 #define INCLUDED_ULTRASONIC_SENSOR_H
 
-#include "Sensor.h"
+#include "Arduino.h"
 namespace project_system
 {
-
-    class UltrasonicSensor : public Sensor
+    class UltrasonicSensor
     {
     private:
+        int echoPin_;
+        int trigPin_;
         bool objectDetected_;
 
     public:
-        UltrasonicSensor(int sensorPin, bool objectDetected);
+        UltrasonicSensor(int echoPin, int trigPin);
         ~UltrasonicSensor();
-        int read_sensor_digital(int sensorPin); // Reads sensor and sets objectDetected_ private member
-        bool detected_object();                 // Simply returns if object is detected.
+        long read_sensor();      // Reads sensor and sets objectDetected_ private member
+        bool detected_object();  // Simply returns if object is detected.
+        static long microsecondsToCentimeters(long microseconds);
     };
 }
+
 #endif // INCLUDED_ULTRASONIC_SENSOR_H

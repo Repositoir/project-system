@@ -1,13 +1,13 @@
 #ifndef INCLUDED_GYROSCOPE_SENSOR_H
 #define INCLUDED_GYROSCOPE_SENSOR_H
 
-#include "Sensor.h"
-
 namespace project_system {
-    class GyroscopeSensor : Sensor
+    class GyroscopeSensor
     {
     private:
-        /* data */
+        int sclPin_;
+        int sdaPin_;
+
     public:
         GyroscopeSensor(/* args */);
         ~GyroscopeSensor();
