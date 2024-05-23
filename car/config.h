@@ -20,8 +20,7 @@
 #define FORWARD 1
 #define REVERSE   2
 #define CS_THRESHOLD 15   // Definition of safety current (Check: "1.3 Monster Shield Example").
-#define MOTOR_A2_PIN 4
-#define MOTOR_B2_PIN 9
-#define SPEED_CTRL 6
-#define MOTOR_ENABLE A1
-#define MOTOR_2 1
+#define MOTOR_A2_PIN 2
+#define MOTOR_B2_PIN 3
+#define SPEED_CTRL 4
+#define MOTOR_ENABLE 5

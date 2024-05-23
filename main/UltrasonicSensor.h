@@ -3,8 +3,6 @@
 
 #include "Arduino.h"
 
-namespace project_system
-{
     class UltrasonicSensor
     {
     private:
@@ -19,6 +17,5 @@ namespace project_system
         bool detected_object();  // Simply returns if object is detected.
         static long microsecondsToCentimeters(long microseconds);
     };
-}
 
 #endif // INCLUDED_ULTRASONIC_SENSOR_H
