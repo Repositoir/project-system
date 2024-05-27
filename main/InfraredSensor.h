@@ -1,9 +1,8 @@
 #ifndef INCLUDED_INFRARED_SENSOR_H
 #define INCLUDED_INFRARED_SENSOR_H
-
 class InfraredSensor {
-  float sensorValue_;
   bool lineDetected_;
+  int *sensorValue_;
 public:
   InfraredSensor();
   float read_sensor();

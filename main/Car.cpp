@@ -40,7 +40,7 @@ int Car::speed() {
 void Car::run(UltrasonicSensor& sensor) {
   if (sensor.detected_object()) {
     speed_ = 0;
-  } else speed_ = 50;
+  } else speed_ = 20;
 
   digitalWrite(MOTOR_ENABLE, HIGH);
   if (direction_ == FORWARD) {
