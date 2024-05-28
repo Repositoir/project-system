@@ -23,7 +23,7 @@ public:
   int direction();
   int speed();
 
-  void run(UltrasonicSensor& sensor);
+  void run();
 };
 
 #endif  // INCLUDED_CAR_H

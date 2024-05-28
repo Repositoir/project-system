@@ -22,7 +22,7 @@ void Car::change_speed(int spd) {
 }
 
 void Car::change_direction(short angle) {
-  angle_ = angle;
+  
 }
 
 // Accessors
@@ -37,10 +37,11 @@ int Car::speed() {
 
 // Run function
 
-void Car::run(UltrasonicSensor& sensor) {
-  if (sensor.detected_object()) {
-    speed_ = 0;
-  } else speed_ = 20;
+void Car::run() {
+  // if (sensor.detected_object()) {
+  //   speed_ = 0;
+  // } else speed_ = 20;
+  // speed_ = 38;
 
   digitalWrite(MOTOR_ENABLE, HIGH);
   if (direction_ == FORWARD) {
