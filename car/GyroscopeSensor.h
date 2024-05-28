@@ -1,6 +1,12 @@
 #ifndef INCLUDED_GYROSCOPE_SENSOR_H
 #define INCLUDED_GYROSCOPE_SENSOR_H
 
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
+#include <Wire.h>
+
+Adafruit_MPU6050 mpu;
+
 namespace project_system {
     class GyroscopeSensor
     {
@@ -9,17 +15,10 @@ namespace project_system {
         int sdaPin_;
 
     public:
-        GyroscopeSensor(/* args */);
-        ~GyroscopeSensor();
+        GyroscopeSensor();
+
+        bool detected_slope();
     };
-    
-    GyroscopeSensor::GyroscopeSensor(/* args */)
-    {
-    }
-    
-    GyroscopeSensor::~GyroscopeSensor()
-    {
-    }
     
 }
 #endif // INCLUDED_GYROSCOPE_SENSOR_H

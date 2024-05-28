@@ -7,6 +7,8 @@ using namespace project_system;
 void setup()                         
 {
 
+  Serial.begin(9600);
+
   pinMode(MOTOR_A2_PIN, OUTPUT);
   pinMode(MOTOR_B2_PIN, OUTPUT);
 
@@ -18,7 +20,7 @@ void setup()
 
   pinMode(MOTOR_ENABLE, OUTPUT);
 
-  Serial.begin(9600);              // Initiates the serial to do the monitoring 
+  GyroscopeSensor();
 
 }
 
