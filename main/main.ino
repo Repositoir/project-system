@@ -109,30 +109,36 @@ void loop() {
   //   s1.write(mapValue);
   // } else continue;
   if (sensorValues[0] <= 500) {
-    Serial.println("Car turn right: 60");
+    // Serial.println("Car turn right: 60");
     s1.write(110);
-    testCar.change_speed(20); //
+    testCar.change_speed(35); //
   } 
   
   if (sensorValues[1] <= 500) {
-    Serial.println("Car turn right: 80");
+    // Serial.println("Car turn right: 80");
     s1.write(100);
     testCar.change_speed(38);
   } 
   
   if (sensorValues[2] <= 500) {
-    Serial.println("Car turn left: 100");
+    // Serial.println("Car turn left: 100");
     s1.write(80);
     testCar.change_speed(38);
   } 
 
   if (sensorValues[3] <= 500) {
-    Serial.println("Car turn left: 120");
-    s1.write(70);
-    testCar.change_speed(20);
+    // Serial.println("Car turn left: 120");
+    s1.write(60);
+    testCar.change_speed(42);
   }
 
-  delay(75);
+  if (sensorValues[0] > 800 && sensorValues[1] > 800 && sensorValues[2] > 800 && sensorValues[3] > 800){
+    while(true){
+      testCar.change_speed(0);
+    }
+  }
+
+  delay(45);
 }
 
 // Function to set or clear a specific bit in the shift register
