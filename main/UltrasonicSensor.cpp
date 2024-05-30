@@ -3,7 +3,7 @@
 #include "config.h"
 
 // Functions declared in test.ino
-extern void setShiftRegisterBit(int bit, bool value);
+// extern void setShiftRegisterBit(int bit, bool value);
 
 UltrasonicSensor::UltrasonicSensor(int echoPin, int trigPin)
   : echoPin_(echoPin), trigPin_(trigPin), objectDetected_(false) {
@@ -16,19 +16,19 @@ UltrasonicSensor::~UltrasonicSensor() {
 
 long UltrasonicSensor::read_sensor() {
   // Clear the trigger pin (set bit to LOW)
-  // digitalWrite(trigPin_, LOW);
-  setShiftRegisterBit(trigPin_, LOW);
+  // setShiftRegisterBit(trigPin_, LOW);
+  digitalWrite(trigPin_, LOW);
   delayMicroseconds(2);
 
   // Send a 10 microsecond pulse to the trigger pin (set bit to HIGH)
-  setShiftRegisterBit(trigPin_, HIGH);
-  // digitalWrite(trigPin_, HIGH);
+  // setShiftRegisterBit(trigPin_, HIGH);
+  digitalWrite(trigPin_, HIGH);
 
   delayMicroseconds(10);
 
   // Clear the trigger pin (set bit to LOW)
-  setShiftRegisterBit(trigPin_, LOW);
-  // digitalWrite(trigPin_, LOW);
+  // setShiftRegisterBit(trigPin_, LOW);
+  digitalWrite(trigPin_, LOW);
 
 
   // Read the echo pin
