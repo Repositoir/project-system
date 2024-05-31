@@ -11,10 +11,11 @@ private:
 
 public:
   UltrasonicSensor(int echoPin, int trigPin);
-  ~UltrasonicSensor();
   long read_sensor();      // Reads sensor and sets objectDetected_ private member
   bool detected_object();  // Simply returns if object is detected.
   static long microsecondsToCentimeters(long microseconds);
+
+  void avoid_obstacle();
 };
 
 #endif  // INCLUDED_ULTRASONIC_SENSOR_H

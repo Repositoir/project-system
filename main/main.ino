@@ -150,5 +150,40 @@ void loop()
     state = CAR_STATE::STOP;
     break;
   }
+<<<<<<< HEAD
+
+  if (sensorValues[0] > 800 && sensorValues[1] > 800 && sensorValues[2] > 800 && sensorValues[3] > 800){
+    while(true){
+      testCar.change_speed(0);
+    }
+  }
+
+  delay(54);
+}
+
+// Function to set or clear a specific bit in the shift register
+void setShiftRegisterBit(int bit, bool value) {
+  if (value) {
+    shiftRegisterState |= (1 << bit);  // Set the bit
+  } else {
+    shiftRegisterState &= ~(1 << bit);  // Clear the bit
+  }
+  updateShiftRegister();  // Update the shift register with the new state
+}
+
+// Function to shift out the current state to the shift register
+void updateShiftRegister() {
+  digitalWrite(latchPin, LOW);  // Set latch pin low to start
+
+  // Shift out the state byte (MSB first)
+  for (int i = 7; i >= 0; i--) {
+    digitalWrite(clockPin, LOW);
+    digitalWrite(dataPin, (shiftRegisterState & (1 << i)) ? HIGH : LOW);
+    digitalWrite(clockPin, HIGH);
+  }
+
+  digitalWrite(latchPin, HIGH);  // Latch the data
+=======
+>>>>>>> 1f8734eeca39aab078ab29577fe08923353a0511
 }
 
