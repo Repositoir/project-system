@@ -18,12 +18,12 @@ public:
   // Modifiers
   void change_drive(int dir);  // FORWARD or BACKWARD
   void change_speed(int spd);
-  void change_direction(short angle);  // Axle change
+  void change_direction(Servo& s, short angle);  // Axle change
 
   // Accessors
   int direction();
   int speed();
-
+  void run();
   void run(Servo& s, UltrasonicSensor& us);
 };
 

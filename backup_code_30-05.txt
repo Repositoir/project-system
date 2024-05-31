@@ -1,0 +1,191 @@
+#include "config.h"
+#include <QTRSensors.h>
+#include <Servo.h>
+#include "UltrasonicSensor.h"
+#include "Car.h"
+
+// Constants
+const uint8_t SensorCount = 4;
+const uint8_t ServoPin = 10;
+const uint16_t CalibrationIterations = 400;
+
+// PID constants
+float Kp = 1.0;  // Proportional gain
+float Ki = 0.0;  // Integral gain
+float Kd = 0.0;  // Derivative gain
+
+// PID variables
+int error = 0;
+int previousError = 0;
+int integral = 0;
+int derivative = 0;
+int baseSpeed = 40;  // Base speed of the car
+
+// Objects
+QTRSensors qtr;
+Servo s1;
+UltrasonicSensor us(echoPin, triggerBit);
+Car testCar = { FORWARD, 37 };
+
+// Variables
+uint16_t sensorValues[SensorCount];
+int threshold[SensorCount];
+byte shiftRegisterState = 0;
+
+void setup() {
+  // Initialize serial communication
+  Serial.begin(9600);
+
+  // Set control pins as outputs
+  pinMode(latchPin, OUTPUT);
+  pinMode(clockPin, OUTPUT);
+  pinMode(dataPin, OUTPUT);
+
+  // Initialize LED
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+
+  // Initialize servo
+  s1.attach(ServoPin);
+
+  // Configure the QTR sensors
+  qtr.setTypeAnalog();
+  qtr.setSensorPins((const uint8_t[]){ A0, A1, A2, A3 }, SensorCount);
+  qtr.setEmitterPin(2);
+
+  // Calibrate sensors
+  calibrateSensors();
+
+  // Print calibration values
+  printCalibrationValues();
+}
+
+void loop() {
+  // Read and print sensor values
+  uint16_t position = qtr.readLineWhite(sensorValues);
+  printSensorValues(position);
+
+  // Calculate error (desired position is the center of the sensors, e.g., 2000 for 4 sensors)
+  error = 2000 - position;
+
+  // Update PID values
+  integral += error;
+  derivative = error - previousError;
+  int pidValue = (Kp * error) + (Ki * integral) + (Kd * derivative);
+  previousError = error;
+
+  // Calculate motor speed
+  int motorSpeed = baseSpeed + pidValue;
+
+  // Limit motor speed to acceptable range
+  motorSpeed = constrain(motorSpeed, -40, 40);
+
+  // Control car based on sensor readings
+  motor_drive(motorSpeed);
+
+  // Small delay for stability
+  delay(45);
+}
+
+// Function to calibrate QTR sensors
+void calibrateSensors() {
+  digitalWrite(LED_BUILTIN, HIGH);  // Turn on LED for calibration
+  for (uint16_t i = 0; i < CalibrationIterations; i++) {
+    qtr.calibrate();
+  }
+  digitalWrite(LED_BUILTIN, LOW);  // Turn off LED after calibration
+  delay(1000);
+}
+
+// Function to print calibration values
+void printCalibrationValues() {
+   for (uint8_t i = 0; i < SensorCount; i++) {
+    threshold[i] = (qtr.calibrationOn.minimum[i] + qtr.calibrationOn.maximum[i]) / 2;
+    Serial.print(threshold[i]);
+    Serial.print("  ");
+  }
+  Serial.println();
+  Serial.println();
+}
+
+// Function to print sensor values and position
+void printSensorValues(uint16_t position) {
+  for (uint8_t i = 0; i < SensorCount; i++) {
+    Serial.print(sensorValues[i]);
+    Serial.print('\t');
+  }
+  Serial.print(position);
+  Serial.println();
+}
+
+// Function to set or clear a specific bit in the shift register
+void setShiftRegisterBit(int bit, bool value) {
+  if (value) {
+    shiftRegisterState |= (1 << bit);  // Set the bit
+  } else {
+    shiftRegisterState &= ~(1 << bit);  // Clear the bit
+  }
+  updateShiftRegister();  // Update the shift register with the new state
+}
+
+// Function to shift out the current state to the shift register
+void updateShiftRegister() {
+  digitalWrite(latchPin, LOW);  // Set latch pin low to start
+
+  // Shift out the state byte (MSB first)
+  for (int i = 7; i >= 0; i--) {
+    digitalWrite(clockPin, LOW);
+    digitalWrite(dataPin, (shiftRegisterState & (1 << i)) ? HIGH : LOW);
+    digitalWrite(clockPin, HIGH);
+  }
+
+  digitalWrite(latchPin, HIGH);  // Latch the data
+}
+
+
+void controlCar(int speed) {
+  if (sensorValues[0] <= 500) {
+    setServoAndSpeed(120, speed);
+  } else if (sensorValues[1] <= 500) {
+    setServoAndSpeed(100, speed);
+  } else if (sensorValues[2] <= 500) {
+    setServoAndSpeed(80, speed);
+  } else if (sensorValues[3] <= 500) {
+    setServoAndSpeed(60, speed);
+  } else if (allSensorsAboveThreshold(900)) {
+    testCar.change_speed(speed);
+  }
+}
+
+// Helper function to set servo angle and car speed
+void setServoAndSpeed(uint8_t angle, int speed) {
+  Serial.print("-- The car running at angle: ");
+  Serial.print(angle);
+  Serial.print(", at speed: ");
+  Serial.print(speed);
+  Serial.println();
+  s1.write(angle);
+  testCar.change_speed(speed);
+}
+
+// Helper function to check if all sensors are above a threshold
+bool allSensorsAboveThreshold(uint16_t threshold) {
+  for (uint8_t i = 0; i < SensorCount; i++) {
+    if (sensorValues[i] <= threshold) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// Function to drive the motor
+void motor_drive(int speed) {
+  if (speed > 0) {
+    controlCar(speed);
+  } else {
+    controlCar(-speed);
+  }
+}
+
+
+Calculate each 10 minutes after all component are integrate how the car perform
