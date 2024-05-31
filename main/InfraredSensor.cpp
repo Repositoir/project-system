@@ -6,7 +6,7 @@ InfraredSensor::InfraredSensor()
 
 float InfraredSensor::read_sensor()
 {
-    // TODO: Add sensor code here
+    /// Sensor code in void loop()
 }
 
 bool InfraredSensor::detected_line()
