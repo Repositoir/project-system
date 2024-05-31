@@ -3,6 +3,7 @@
 
 #include "Arduino.h"
 #include "UltrasonicSensor.h" // Include the UltrasonicSensor header
+#include <Servo.h>
 
 class Car {
 private:
@@ -23,7 +24,7 @@ public:
   int direction();
   int speed();
 
-  void run();
+  void run(Servo& s, UltrasonicSensor& us);
 };
 
 #endif  // INCLUDED_CAR_H
