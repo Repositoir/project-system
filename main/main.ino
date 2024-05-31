@@ -138,7 +138,7 @@ void loop() {
     }
   }
 
-  delay(45);
+  delay(54);
 }
 
 // Function to set or clear a specific bit in the shift register
