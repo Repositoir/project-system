@@ -10,7 +10,7 @@
 Servo carServo;
 QTRSensors qtr;
 UltrasonicSensor us(ECHO_PIN, TRIG_PIN);
-Car testCar = { FORWARD, 38 };
+Car testCar = { FORWARD, 48 };
 
 uint16_t sensorValues[SENSOR_COUNT];
 
@@ -30,7 +30,6 @@ CAR_STATE state = CAR_STATE::FOLLOW_LINE;
 
 
 void setup() {
-
   // put your setup code here, to run once:
   Serial.begin(9600);
   carServo.attach(SERVO_PIN);
@@ -55,7 +54,6 @@ void setup() {
   digitalWrite(LED_BUILTIN, LOW);  // turn off Arduino's LED to indicate we are through with calibration
 
   // print the calibration minimum values measured when emitters were on
-  Serial.begin(9600);
   for (uint8_t i = 0; i < SENSOR_COUNT; i++) {
     Serial.print(qtr.calibrationOn.minimum[i]);
     Serial.print(' ');
@@ -73,14 +71,39 @@ void setup() {
 }
 
 void loop() {
+  static bool isStop = false;
   // put your main code here, to run repeatedly:
   // static bool finishDetected = false;
-
+  testCar.run();
   // read calibrated sensor values and obtain a measure of the line position
   // from 0 to 3000 (for a white line, use readLineWhite() instead)
   uint16_t position = qtr.readLineWhite(sensorValues);
-  uint16_t new_position = map(position, 0, 3000, -30, 30);
-
+  // uint16_t new_position = map(position, 0, 3000, 60, 120);
+  // degree = new_position;
+  // TODO: Find the right angle to make the car manueve
+  testCar.change_speed(45);
+  if (sensorValues[0] <= 550) {
+    carServo.write(60);
+    testCar.change_speed(50);  
+  }
+  if (sensorValues[0] && sensorValues[1] <= 550) {
+    carServo.write(70);
+  }
+  if (sensorValues[1] <= 550) {
+    carServo.write(90);
+  }
+  if (sensorValues[1] && sensorValues[2] <= 550) {
+    carServo.write(105);
+  }
+  if (sensorValues[2] && sensorValues[3] <= 550) {
+    carServo.write(110);
+  }
+  if (sensorValues[3] <= 550) {
+    // Serial.println("Car turn right: 60");
+    carServo.write(120);
+    testCar.change_speed(50);  //
+  }
+  // delay(45);
   // print the sensor values as numbers from 0 to 1000, where 0 means maximum
   // reflectance and 1000 means minimum reflectance, followed by the line
   // position
@@ -88,27 +111,47 @@ void loop() {
   //   Serial.print(sensorValues[i]);
   //   Serial.print('\t');
   // }
-  Serial.println(position);
-  double degree = SERVO_CENTER + new_position;  // -30 to 30 degree
-  auto penul = constrain(degree, 60, 120);
+  // Serial.println(position);
+  // double degree = SERVO_CENTER + new_position;  // -30 to 30 degree
+  // auto penul = constrain(new_position, 60, 120);
 
-  int ulti = map(penul, 60, 120, 1, 6);
+  // int ulti = constrain(map(penul, 60, 120, 1, 6), 1, 6);
 
-  if (ulti == 1 || ulti == 6) {
-    testCar.change_speed(45);
-  } else if (ulti == 2 || ulti == 5) {
-    testCar.change_speed(36);
-  } else if (ulti == 3 || ulti == 4) {
-    testCar.change_speed(38);
-  } else {
-    testCar.change_speed(0);
+
+  // if (ulti == 1 || ulti == 6) {
+  //   testCar.change_speed(45);
+  // }
+
+  // if (ulti == 2 || ulti == 5) {
+  //   testCar.change_speed(37);
+  // }
+
+  // if (ulti == 3 || ulti == 4) {
+  //   testCar.change_speed(38);
+  // }
+
+  // Serial.println(ulti);
+
+  // // Serial.println(new_position);
+  // carServo.write(penul);
+
+  // bool condition1 = (sensorValues[0] > 900 && sensorValues[1] > 900 && sensorValues[2] > 900 && sensorValues[3]);
+  // if (condition1) {
+  //   isRun = true;
+  //   carServo.write(60);
+  // }
+  // if (isRun) {
+  //   testCar.change_speed(42);
+  // }
+  bool condition2 = (sensorValues[0] < 100 && sensorValues[3] < 100);
+  if (condition2) {
+    isStop = true;
   }
-
-  testCar.run(carServo, us);
-  Serial.println(degree);
-  carServo.write(degree);
-
-  long distance = us.read_sensor();
+  if (isStop) {
+    testCar.change_speed(0);
+    carServo.write(SERVO_CENTER);
+  }
+  // long distance = us.read_sensor();
   // Serial.print("Distance: ");
   // Serial.print(distance);
   // Serial.println(" cm");
