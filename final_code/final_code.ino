@@ -10,7 +10,7 @@
 Servo carServo;
 QTRSensors qtr;
 UltrasonicSensor us(ECHO_PIN, TRIG_PIN);
-Car testCar = { FORWARD, 45 };
+Car testCar = { FORWARD, 38 };
 
 uint16_t sensorValues[SENSOR_COUNT];
 
@@ -30,7 +30,7 @@ CAR_STATE state = CAR_STATE::FOLLOW_LINE;
 
 
 void setup() {
-  
+
   // put your setup code here, to run once:
   Serial.begin(9600);
   carServo.attach(SERVO_PIN);
@@ -74,34 +74,46 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  static bool finishDetected = false;
+  // static bool finishDetected = false;
 
   // read calibrated sensor values and obtain a measure of the line position
   // from 0 to 3000 (for a white line, use readLineWhite() instead)
   uint16_t position = qtr.readLineWhite(sensorValues);
-  uint16_t new_position = map(position, 0, 3000, 0, 6000);
+  uint16_t new_position = map(position, 0, 3000, -30, 30);
+
   // print the sensor values as numbers from 0 to 1000, where 0 means maximum
   // reflectance and 1000 means minimum reflectance, followed by the line
   // position
-  for (uint8_t i = 0; i < SENSOR_COUNT; i++) {
-    Serial.print(sensorValues[i]);
-    Serial.print('\t');
+  // for (uint8_t i = 0; i < SENSOR_COUNT; i++) {
+  //   Serial.print(sensorValues[i]);
+  //   Serial.print('\t');
+  // }
+  Serial.println(position);
+  double degree = SERVO_CENTER + new_position;  // -30 to 30 degree
+  auto penul = constrain(degree, 60, 120);
+
+  int ulti = map(penul, 60, 120, 1, 6);
+
+  if (ulti == 1 || ulti == 6) {
+    testCar.change_speed(45);
+  } else if (ulti == 2 || ulti == 5) {
+    testCar.change_speed(36);
+  } else if (ulti == 3 || ulti == 4) {
+    testCar.change_speed(38);
+  } else {
+    testCar.change_speed(0);
   }
-  Serial.println(new_position);
-  double degree = SERVO_CENTER + getTurnDeg(new_position);
+
+  testCar.run(carServo, us);
   Serial.println(degree);
   carServo.write(degree);
-  delay(50);
 
   long distance = us.read_sensor();
-  Serial.print("Distance: ");
-  Serial.print(distance);
-  Serial.println(" cm");
+  // Serial.print("Distance: ");
+  // Serial.print(distance);
+  // Serial.println(" cm");
 
-  delay(50); // Wait for 1 second before the next reading
-  testCar.run(carServo, us);
-  testCar.change_speed(45);
-
+  // delay(50); // Wait for 1 second before the next reading
 }
 
 double getTurnDeg(const int position) {
@@ -110,7 +122,7 @@ double getTurnDeg(const int position) {
   const double Ki = 0.0000000;
   //    const double Ki = 0.000007;
   const double Kd = 0.0085;
-  const int midPosition = 3000;
+  const int midPosition = 1500;
 
   static double previous_error = 50;
   static double integral = 0;
