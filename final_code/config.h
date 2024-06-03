@@ -23,10 +23,10 @@ enum CAR_STATE {CALIBRATE, FOLLOW_LINE, OBJECT_DETECTION, RAMP_DETECTION, STOP};
 #define QTA_IR_2_PIN A1
 #define QTA_IR_3_PIN A2
 #define QTA_IR_4_PIN A3
-#define QTA_IR_5_PIN 3
-#define QTA_IR_6_PIN 8
-#define QTA_IR_7_PIN 9
-#define QTA_IR_8_PIN 10
+
+#define SERVO_PIN 13
+#define SERVO_CENTER 90
+#define SENSOR_COUNT 4
 
 // FOLLOW_LINE 
 // - QTR8-A return the value
@@ -48,19 +48,19 @@ enum CAR_STATE {CALIBRATE, FOLLOW_LINE, OBJECT_DETECTION, RAMP_DETECTION, STOP};
 // - Motor - depend on the value of QTR if (all return black -> stop || all return white -> stop)
 // - Gyro - check it is ground or not -> yes, stop
 
-Tuning Process
-Proportional Control (Kp):
+// Tuning Process
+// Proportional Control (Kp):
 
-Start with Kp = 1.0. If the car oscillates around the line, reduce Kp. If the car responds too slowly, increase Kp gradually until you see consistent tracking.
-Integral Control (Ki):
+// Start with Kp = 1.0. If the car oscillates around the line, reduce Kp. If the car responds too slowly, increase Kp gradually until you see consistent tracking.
+// Integral Control (Ki):
 
-With Ki = 0.1, observe if there's any drift or steady-state error. If the car consistently drifts away from the line, increase Ki slightly. If the car starts to oscillate or becomes unstable, reduce Ki.
-Derivative Control (Kd):
+// With Ki = 0.1, observe if there's any drift or steady-state error. If the car consistently drifts away from the line, increase Ki slightly. If the car starts to oscillate or becomes unstable, reduce Ki.
+// Derivative Control (Kd):
 
-With Kd = 0.5, you should see damping of oscillations. If the car overshoots and oscillates, increase Kd. If the car becomes sluggish, reduce Kd.
-Fine-Tuning Tips
-Adjust one parameter at a time and observe the behavior.
-Make small adjustments (e.g., increments of 0.1 for Kp and Ki, 0.05 for Kd).
-Test the car on a straight and curved line to ensure robustness.
-If the car consistently tracks the line well but oscillates on curves, increase Kd slightly.
-With this approach, you should be able to fine-tune the PID values for your specific setup and achieve reliable line-following performance.
+// With Kd = 0.5, you should see damping of oscillations. If the car overshoots and oscillates, increase Kd. If the car becomes sluggish, reduce Kd.
+// Fine-Tuning Tips
+// Adjust one parameter at a time and observe the behavior.
+// Make small adjustments (e.g., increments of 0.1 for Kp and Ki, 0.05 for Kd).
+// Test the car on a straight and curved line to ensure robustness.
+// If the car consistently tracks the line well but oscillates on curves, increase Kd slightly.
+// With this approach, you should be able to fine-tune the PID values for your specific setup and achieve reliable line-following performance.
