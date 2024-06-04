@@ -1,8 +1,5 @@
-#include <Servo.h>
 #include <QTRSensors.h>
-#include <Adafruit_MPU6050.h>
-#include <Adafruit_Sensor.h>
-#include <Wire.h>
+#include <Servo.h>
 #include "config.h"
 #include "Car.h"
 #include "UltrasonicSensor.h"
@@ -18,17 +15,6 @@ unsigned char carState = FOLLOW_LINE;  // What the car is doing at any given mom
 
 CAR_STATE state = CAR_STATE::FOLLOW_LINE;
 
-// int getPosition(QTRSensors &qtr, bool &atFinish) {
-//     uint16_t array[SENSOR_COUNT];
-//     uint16_t position = qtr.readLineWhite(array);
-//     if (array[0] == 0 && array[7] == 0) {
-//         atFinish = true;
-//     }
-//     return position;
-// }
-
-
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
@@ -37,7 +23,7 @@ void setup() {
 
   // configure the sensors
   qtr.setTypeAnalog();
-  qtr.setSensorPins((const uint8_t[]){ A0, A1, A2, A3 }, SENSOR_COUNT);
+  qtr.setSensorPins((const uint8_t[]){ QTA_IR_1_PIN, QTA_IR_2_PIN, QTA_IR_3_PIN, QTA_IR_4_PIN }, SENSOR_COUNT);
   qtr.setEmitterPin(2);
 
   delay(500);
@@ -71,20 +57,17 @@ void setup() {
 }
 
 void loop() {
-  static bool isStop = false;
   // put your main code here, to run repeatedly:
-  // static bool finishDetected = false;
+  static bool isStop = false;
   testCar.run();
   // read calibrated sensor values and obtain a measure of the line position
   // from 0 to 3000 (for a white line, use readLineWhite() instead)
   uint16_t position = qtr.readLineWhite(sensorValues);
-  // uint16_t new_position = map(position, 0, 3000, 60, 120);
-  // degree = new_position;
-  // TODO: Find the right angle to make the car manueve
+  // Find the right angle to make the car manueve
   testCar.change_speed(45);
   if (sensorValues[0] <= 550) {
     carServo.write(60);
-    testCar.change_speed(50);  
+    testCar.change_speed(50);
   }
   if (sensorValues[0] && sensorValues[1] <= 550) {
     carServo.write(70);
@@ -99,84 +82,15 @@ void loop() {
     carServo.write(110);
   }
   if (sensorValues[3] <= 550) {
-    // Serial.println("Car turn right: 60");
     carServo.write(120);
-    testCar.change_speed(50);  //
+    testCar.change_speed(50);  
   }
-  // delay(45);
-  // print the sensor values as numbers from 0 to 1000, where 0 means maximum
-  // reflectance and 1000 means minimum reflectance, followed by the line
-  // position
-  // for (uint8_t i = 0; i < SENSOR_COUNT; i++) {
-  //   Serial.print(sensorValues[i]);
-  //   Serial.print('\t');
-  // }
-  // Serial.println(position);
-  // double degree = SERVO_CENTER + new_position;  // -30 to 30 degree
-  // auto penul = constrain(new_position, 60, 120);
-
-  // int ulti = constrain(map(penul, 60, 120, 1, 6), 1, 6);
-
-
-  // if (ulti == 1 || ulti == 6) {
-  //   testCar.change_speed(45);
-  // }
-
-  // if (ulti == 2 || ulti == 5) {
-  //   testCar.change_speed(37);
-  // }
-
-  // if (ulti == 3 || ulti == 4) {
-  //   testCar.change_speed(38);
-  // }
-
-  // Serial.println(ulti);
-
-  // // Serial.println(new_position);
-  // carServo.write(penul);
-
-  // bool condition1 = (sensorValues[0] > 900 && sensorValues[1] > 900 && sensorValues[2] > 900 && sensorValues[3]);
-  // if (condition1) {
-  //   isRun = true;
-  //   carServo.write(60);
-  // }
-  // if (isRun) {
-  //   testCar.change_speed(42);
-  // }
-  bool condition2 = (sensorValues[0] < 100 && sensorValues[3] < 100);
-  if (condition2) {
+  bool isValidStop = (sensorValues[0] < 100 && sensorValues[3] < 100);
+  if (isValidStop) {
     isStop = true;
   }
   if (isStop) {
     testCar.change_speed(0);
     carServo.write(SERVO_CENTER);
   }
-  // long distance = us.read_sensor();
-  // Serial.print("Distance: ");
-  // Serial.print(distance);
-  // Serial.println(" cm");
-
-  // delay(50); // Wait for 1 second before the next reading
-}
-
-double getTurnDeg(const int position) {
-  const double Kp = 0.01221;
-  // const double Kp = 0.65;
-  const double Ki = 0.0000000;
-  //    const double Ki = 0.000007;
-  const double Kd = 0.0085;
-  const int midPosition = 1500;
-
-  static double previous_error = 50;
-  static double integral = 0;
-  double derivative = 0;
-  double correction = 0;
-  int error = 45;
-  error = position - midPosition;
-
-  integral += error;
-  derivative = error - previous_error;
-  correction = Kp * error + Ki * integral + Kd * derivative;
-  previous_error = error;
-  return correction;
 }
